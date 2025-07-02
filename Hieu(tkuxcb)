@@ -1,0 +1,29 @@
+-- Script Mượt: Auto Farm + Giảm Lag
+pcall(function()
+    -- ✅ Giảm lag (ẩn mọi thứ không cần)
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("BasePart") or v:IsA("Decal") then
+            v.Transparency = 1
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+        end
+    end
+    game:GetService("Lighting").FogEnd = math.huge
+    game:GetService("Lighting").Brightness = 0
+    game:GetService("Lighting").GlobalShadows = false
+    setfpscap(60) -- Hoặc 30 nếu lag
+
+    -- ✅ Auto farm cơ bản (nhấn vào quái liên tục)
+    while wait(0.1) do
+        for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+            if v:FindFirstChild("HumanoidRootPart") then
+                game.Players.LocalPlayer.Character:MoveTo(v.HumanoidRootPart.Position + Vector3.new(0,5,0))
+                wait(0.3)
+                repeat
+                    game:GetService("ReplicatedStorage").Remotes.Damage:FireServer(v)
+                    wait(0.2)
+                until v.Humanoid.Health <= 0
+            end
+        end
+    end
+end)
