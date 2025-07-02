@@ -1,29 +1,31 @@
--- Script Mượt: Auto Farm + Giảm Lag
-pcall(function()
-    -- ✅ Giảm lag (ẩn mọi thứ không cần)
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("BasePart") or v:IsA("Decal") then
-            v.Transparency = 1
-            v.Material = Enum.Material.SmoothPlastic
-            v.Reflectance = 0
-        end
-    end
-    game:GetService("Lighting").FogEnd = math.huge
-    game:GetService("Lighting").Brightness = 0
-    game:GetService("Lighting").GlobalShadows = false
-    setfpscap(60) -- Hoặc 30 nếu lag
+-- Tối ưu lag: LocalScript (StarterPlayer > StarterPlayerScripts)
+local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
 
-    -- ✅ Auto farm cơ bản (nhấn vào quái liên tục)
-    while wait(0.1) do
-        for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-            if v:FindFirstChild("HumanoidRootPart") then
-                game.Players.LocalPlayer.Character:MoveTo(v.HumanoidRootPart.Position + Vector3.new(0,5,0))
-                wait(0.3)
-                repeat
-                    game:GetService("ReplicatedStorage").Remotes.Damage:FireServer(v)
-                    wait(0.2)
-                until v.Humanoid.Health <= 0
-            end
-        end
-    end
-end)
+-- Xóa hiệu ứng nặng
+Lighting.GlobalShadows = false
+Lighting.FogEnd = 1000000
+Lighting.Brightness = 1
+Lighting.TimeOfDay = "14:00:00"
+
+-- Tắt hiệu ứng hiển thị UI nặng
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+
+-- Ẩn tất cả decal không cần thiết
+for _, v in pairs(game.Workspace:GetDescendants()) do
+	if v:IsA("Decal") or v:IsA("Texture") then
+		v:Destroy()
+	elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
+		v:Destroy()
+	end
+end
+
+-- Giảm chi tiết môi trường (terrain, mesh...)
+for _, obj in pairs(workspace:GetDescendants()) do
+	if obj:IsA("MeshPart") then
+		obj.TextureID = ""
+	end
+end
+
+-- Tắt bóng đổ nhân vật
+game:GetService("UserSettings"):GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1
